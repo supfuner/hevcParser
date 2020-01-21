@@ -146,7 +146,7 @@ int h265Parser::h265_GetAnnexbNALU (NALU_t *nalu){
 			memcpy (nalu->buf, &Buf[nalu->startcodeprefix_len], nalu->len);
 			nalu->forbidden_bit = nalu->buf[0] & 0x80; //1 bit
 			nalu->nal_reference_idc = nalu->buf[0] & 0x60; // 2 bit
-			nalu->nal_unit_type = (nalu->buf[0]) & 0x1f;// 5 bit
+			nalu->nal_unit_type = ((nalu->buf[0])& 0x7E)>>1;// 5 bit
 			free(Buf);
 			Buf = NULL;
 			return pos-1;
@@ -225,7 +225,7 @@ int h265Parser::h265_parser_sps(unsigned char * buffer, unsigned int bufferlen){
     bool        sps_sub_layer_ordering_info_present_flag;
     bool        rbsp_stop_one_bit;
 
-    u(16,buffer,StartBit);//Header
+    u(16,buffer,StartBit);//nal_unit_header
     sps_video_parameter_set_id      = u(4,buffer,StartBit);
     sps_max_sub_layers_minus1       = u(3,buffer,StartBit);
     sps_temporal_id_nesting_flag    = u(1,buffer,StartBit);
@@ -331,8 +331,27 @@ int h265Parser::h265_parser_sps(unsigned char * buffer, unsigned int bufferlen){
 
 //     for (i = 0; i < num_short_term_ref_pic_sets; i++)
 //     {
-//         ReferencePictureSet_t *rps = &p_sps->m_RPSList.m_referencePictureSets[i];
-//         parse_short_term_ref_pic_set(p_sps, rps, i);
+//    	 //parse_short_term_ref_pic_set(i)
+//    	 int inter_ref_pic_set_prediction_flag = 0;
+//    	 int delta_idx_minus1 = 0;
+//    	 int delta_rps_sign = 0;
+//    	 int abs_delta_rps_minus1 = 0;
+//    	 int delta_rps = 0;
+//    	 if(i){
+//    		 inter_ref_pic_set_prediction_flag = u(1,buffer,StartBit);
+//    	 }
+//    	 if(inter_ref_pic_set_prediction_flag){
+//    		 if(i == num_short_term_ref_pic_sets){
+//    			 delta_idx_minus1 = Ue(buffer,bufferlen,StartBit);
+//    		 }
+//    		 delta_rps_sign = u(1,buffer,StartBit);
+//    		 abs_delta_rps_minus1 = Ue(buffer,bufferlen,StartBit);
+//    	    delta_rps      = (1 - (delta_rps_sign << 1)) * (abs_delta_rps_minus1+1);
+////            for (i = 0; i <= rps_ridx->num_delta_pocs; i++) {
+////
+////            }
+//    	 }
+//
 //     }
 
     bool long_term_ref_pics_present_flag = false;

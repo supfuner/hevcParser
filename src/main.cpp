@@ -37,10 +37,10 @@ void stHDRMetadata_printf( HEVCParser::stHDRMetadata info){
 
 int main(int argc,char** argv){
 
-//	FILE * fp = fopen("/root/mcloud/eclipse.workspace/PacketHdr/packetHdr/hdr.h265","rb");
-//	FILE * fp = fopen("/root/mcloud/eclipse.workspace/H264Pparser/H264PARSER/data/test.h264","rb");
+//	FILE * fp = fopen("/mnt/hgfs/shareDisk/测试分片/manguo/bili.h265","rb");
+//0 /mnt/hgfs/shareDisk/测试分片/花屏/1541948570.h264
     int type = atoi(argv[1]);
-    std::string filePath = argv[2];
+    std::string filePath = "/mnt/hgfs/shareDisk/测试分片/manguo/bili.h265";//argv[2];
 
     if(argc != 3){
     	printf("param num Err\n");
@@ -57,10 +57,7 @@ int main(int argc,char** argv){
     fseek(fp,0L,SEEK_END);
     long int nfilesize = ftell(fp);
     rewind(fp);
-    printf("nfilesize:\t%d\n",nfilesize);
-    if(nfilesize > 3840*2160){
-    	nfilesize = 3840*2160;
-    }
+    printf("nfilesize:\t%ld\n",nfilesize);
 	 unsigned char* buffer = new unsigned char[nfilesize];
 	 unsigned int bufferlen = fread(buffer,1,nfilesize,fp);
 	 HEVCParser::stHDRMetadata info;
@@ -68,21 +65,25 @@ int main(int argc,char** argv){
 	 switch(type){
 	 	 case 0:{
 	 		 h264Parser *p = new h264Parser();
+	 		 p->h264_init();
 	 		 p->h264_parser(buffer,bufferlen,info);
-	 		 stHDRMetadata_printf(p->h264info);
+	 		// stHDRMetadata_printf(p->h264info);
 	 		 if(!p->m_isSps){
 	 			 printf("Not found sps\n");
 	 		 }
+	 		 p->h264_uinit();
 	 		 delete p;
+	 		 break;
 	 	 }
 	 	 case 1:{
 	 		 h265Parser *p = new h265Parser();
 	 		 p->h265_parser(buffer,bufferlen,info);
-	 		 stHDRMetadata_printf(p->m_h265info);
+	 		 //stHDRMetadata_printf(p->m_h265info);
 	 		 if(!p->m_isSps){
 	 			 printf("Not found sps\n");
 	 		 }
 	 		 delete p;
+	 		 break;
 	 	 }
 	 }
 	 if(buffer != NULL)
